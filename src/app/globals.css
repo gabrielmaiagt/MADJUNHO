@@ -1,0 +1,263 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 341 78% 44%; /* #CA1854 */
+    --primary-foreground: 0 0% 100%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
+    --accent: 340 98% 55%; /* Slightly different pink for accents */
+    --accent-foreground: 0 0% 100%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 341 78% 44%;
+    --radius: 0.75rem;
+    --bottom-nav: 70px; /* Custom variable for nav height */
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Custom utility to hide scrollbars */
+@layer utilities {
+    .no-scrollbar::-webkit-scrollbar {
+        display: none;
+    }
+    .no-scrollbar {
+        -ms-overflow-style: none;  /* IE and Edge */
+        scrollbar-width: none;  /* Firefox */
+    }
+}
+
+/* remove acolchoamento do container quando houver hero-full */
+.container, .page, .content, .section {
+  margin: 0 !important;
+  padding: 0 !important;
+}
+
+/* HERO full-bleed: aplica no PRÓPRIO CARD que recebeu hero-full */
+.hero-full {
+  position: relative !important;
+  z-index: 1 !important;
+  width: 100vw !important;
+  max-width: 100vw !important;
+
+  /* “sangra” para fora de containers centralizados */
+  left: 50% !important;
+  right: 50% !important;
+  margin-left: -50vw !important;
+  margin-right: -50vw !important;
+
+  min-height: calc(100dvh - var(--bottom-nav, 80px)) !important; /* troque p/ 100dvh se quiser total */
+  border-radius: 0 !important;
+  box-shadow: none !important;
+  overflow: hidden !important;
+
+  /* se sua imagem estiver como background no próprio card */
+  background-size: cover !important;
+  background-position: center !important;
+  background-repeat: no-repeat !important;
+}
+
+/* se a imagem for elemento filho (<img> ou <picture>) */
+.hero-full img,
+.hero-full picture img,
+.hero-full .cover,
+.hero-full .media img,
+.hero-full .image {
+  position: absolute !important;
+  inset: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  display: block !important;
+  z-index: 0 !important;
+}
+
+
+/* leve gradiente pra legibilidade (opcional; tire se não quiser) */
+.hero-full::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to top,
+    rgba(0,0,0,.55),
+    rgba(0,0,0,.15) 40%,
+    transparent 70%
+  );
+  z-index: 1;
+  pointer-events: none;
+}
+
+.action-btn {
+    @apply rounded-full bg-black/30 backdrop-blur-sm shadow-lg transition-transform hover:scale-105;
+}
+
+.like-btn {
+    @apply w-20 h-20 bg-primary text-primary-foreground;
+}
+
+.dislike-btn {
+    @apply w-16 h-16 text-red-500;
+}
+
+.undo-btn {
+    @apply w-16 h-16 text-gray-400;
+}
+
+
+/* === Custom Chat CSS === */
+
+.chat{ 
+  max-width: 780px; 
+  /* margin:0 auto; */ /* REMOVED TO ALIGN LEFT */
+  padding:10px var(--gutter, 12px); 
+}
+
+.msg{
+  display:flex; 
+  align-items:flex-start; 
+  gap:8px; 
+  margin:8px 0;
+}
+
+.msg.you  { justify-content:flex-start; }
+.msg.me   { justify-content:flex-end; }
+
+.bubble{
+  position:relative;
+  display:inline-block;
+  max-width: clamp(260px,78vw,520px);
+  padding:8px 12px;
+  border-radius: 16px;
+  background:#1f1f22; 
+  color:#eee;
+  word-wrap: break-word;
+}
+.bubble.me  { background:#1d4230; }
+
+.meta{
+  display:flex; 
+  align-items:baseline; 
+  gap:6px; 
+  margin-bottom:4px;
+}
+.name{ 
+  font-weight:600; 
+  font-size:.85rem; 
+  color:#82d890; /* WhatsApp-like green */
+}
+.time{ 
+  margin-left:auto; 
+  font-size:.72rem; 
+  opacity:.6; 
+}
+
+.text{
+    white-space: pre-wrap;
+}
+
+.media-wrap{ 
+  margin-top:6px; 
+  border-radius:12px; 
+  overflow:hidden; 
+  background:#111; 
+}
+.media-wrap img{ 
+  display:block; 
+  width:100%; 
+  height:auto; 
+  object-fit:contain; 
+  max-height:55vh; 
+}
+.video-wrap{ 
+  position:relative; 
+  width:100%; 
+  aspect-ratio:9/16; 
+  max-height:55vh; 
+}
+.video-wrap iframe{ 
+  position:absolute; 
+  inset:0; 
+  width:100%; 
+  height:100%; 
+  border:0; 
+}
+
+.msg.compact .meta {
+    display: none;
+}
+.wh-inline-avatar{
+  width: 24px;
+  height: 24px;
+  border-radius: 9999px;
+  object-fit: cover;
+  display: inline-block;
+  vertical-align: middle;
+  margin-right: 6px;
+  box-shadow: 0 0 0 2px #101113;
+}
+
+:root{
+  --wh-av: 28px;   /* tamanho do avatar */
+  --wh-gap: 8px;   /* espaço entre avatar e balão */
+  --wh-top: 6px;   /* alinhamento vertical com o nome */
+}
+
+/* reserva espaço à esquerda do balão das recebidas */
+.msg.you > .bubble{
+  position: relative !important;
+  margin-left: calc(var(--wh-av) + var(--wh-gap)) !important;
+  overflow: visible !important; /* garante que o avatar não seja cortado */
+}
+
+/* puxa o avatar para fora do balão e alinha na linha do nome */
+.msg.you .wh-inline-avatar{
+  position: absolute !important;
+  left: calc(-1 * (var(--wh-av) + var(--wh-gap))) !important;
+  top: var(--wh-top) !important;
+  width: var(--wh-av) !important;
+  height: var(--wh-av) !important;
+  border-radius: 9999px !important;
+  object-fit: cover !important;
+  z-index: 2 !important;
+  box-shadow: 0 0 0 2px #101113; /* opcional */
+}
+
+/* Aumenta apenas o ícone ao qual você aplicar esta classe */
+.icon-only-size{
+  font-size: 20px !important;     /* para emoji ou ícone de fonte (<i>, <span>) */
+  line-height: 1;
+  display: inline-block;
+}
+
+/* se o ícone for SVG inline */
+svg.icon-only-size,
+.icon-only-size svg{
+  width: 20px !important;
+  height: 20px !important;
+}
+
+.h-dvh {
+  height: 100dvh;
+}

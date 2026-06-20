@@ -1,0 +1,314 @@
+
+{
+  "entities": {
+    "Product": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Product",
+      "description": "Represents a product in the online store.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the product."
+        },
+        "price": {
+          "type": "number",
+          "description": "Price of the product in BRL."
+        },
+        "discount": {
+          "type": [
+            "number",
+            "null"
+          ],
+          "description": "Discount percentage."
+        },
+        "rating": {
+          "type": "number",
+          "description": "Average customer rating."
+        },
+        "sold": {
+          "type": "number",
+          "description": "Number of units sold."
+        },
+        "images": {
+          "type": "array",
+          "items": {
+            "type": "string",
+            "format": "uri"
+          }
+        },
+        "description": {
+          "type": "string"
+        },
+        "testimonials": {
+          "type": "array",
+          "items": {
+            "$ref": "#/backend/entities/Testimonial"
+          }
+        },
+        "checkoutUrl": {
+          "type": "string",
+          "format": "uri"
+        }
+      },
+      "required": [
+        "name",
+        "price",
+        "rating",
+        "sold",
+        "images",
+        "description",
+        "testimonials",
+        "checkoutUrl"
+      ]
+    },
+    "Testimonial": {
+      "title": "Testimonial",
+      "description": "A customer testimonial for a product.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "avatarUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "rating": {
+          "type": "number"
+        },
+        "comment": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "avatarUrl",
+        "rating",
+        "comment"
+      ]
+    },
+    "Chapter": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Chapter",
+      "description": "Represents a content chapter in the feed.",
+      "type": "object",
+      "properties": {
+        "title": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "imageUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "href": {
+          "type": "string",
+          "description": "The link to the chapter page."
+        },
+        "content": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "type": {
+                "type": "string",
+                "enum": [
+                  "paragraph",
+                  "heading",
+                  "list",
+                  "quote",
+                  "hack",
+                  "tip"
+                ]
+              },
+              "text": {
+                "type": "string"
+              },
+              "icon": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "type",
+              "text"
+            ]
+          }
+        }
+      },
+      "required": [
+        "title",
+        "description",
+        "imageUrl",
+        "href"
+      ]
+    },
+    "VideoPost": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VideoPost",
+      "description": "Represents a video post in the TikTok-style feed.",
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "avatarUrl": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "name",
+            "avatarUrl"
+          ]
+        },
+        "videoUrl": {
+          "type": "string",
+          "format": "uri"
+        },
+        "caption": {
+          "type": "string"
+        },
+        "likes": {
+          "type": "number"
+        },
+        "comments": {
+          "type": "array",
+          "items": {
+            "$ref": "#/backend/entities/VideoComment"
+          }
+        }
+      },
+      "required": [
+        "user",
+        "videoUrl",
+        "caption",
+        "likes"
+      ]
+    },
+    "VideoComment": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VideoComment",
+      "description": "A comment on a video post.",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "user": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "avatarUrl": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "name",
+            "avatarUrl"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        },
+        "likes": {
+          "type": "number"
+        },
+        "isPinned": {
+          "type": "boolean"
+        },
+        "replies": {
+          "type": "array",
+          "items": {
+            "$ref": "#/backend/entities/VideoCommentReply"
+          }
+        }
+      },
+      "required": [
+        "id",
+        "user",
+        "text",
+        "date",
+        "likes"
+      ]
+    },
+    "VideoCommentReply": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "VideoCommentReply",
+      "description": "A reply to a video comment.",
+      "type": "object",
+      "properties": {
+        "user": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "avatarUrl": {
+              "type": "string",
+              "format": "uri"
+            }
+          },
+          "required": [
+            "name",
+            "avatarUrl"
+          ]
+        },
+        "text": {
+          "type": "string"
+        },
+        "date": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "user",
+        "text",
+        "date"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "/products/{productId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Product"
+      },
+      "description": "Stores individual product details for the shop."
+    },
+    "/chapters/{chapterId}": {
+      "schema": {
+        "$ref": "#/backend/entities/Chapter"
+      },
+      "description": "Stores individual content chapters for the feed."
+    },
+    "/videoPosts/{videoId}": {
+      "schema": {
+        "$ref": "#/backend/entities/VideoPost"
+      },
+      "description": "Stores individual video posts for the TikTok-style feed."
+    }
+  }
+}
+
+    

@@ -1,0 +1,60 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+
+    // Publicly readable content
+    match /products/{productId} {
+      allow read: if true;
+      allow write: if false; // Managed via admin panel
+    }
+    match /chapters/{chapterId} {
+      allow read: if true;
+      allow write: if false; // Managed via admin panel
+    }
+    match /videoPosts/{videoId} {
+      allow read: if true;
+      allow write: if false; // Managed via admin panel
+    }
+    
+    // User-specific data - allow creation, but only owner can read/update/delete
+    match /users/{userId} {
+      allow read, update, delete: if request.auth != null && isOwner(userId);
+      allow create: if request.auth != null;
+    }
+    
+    // Analytics & Visitor tracking
+    match /analytics/summary {
+      allow read: if true; // Admin can read
+      allow write: if true; // Any client can increment counters
+    }
+    
+    match /visitors/{visitorId} {
+      // User can create, read, and write their OWN visitor document.
+      // The visitorId MUST match the authenticated user's UID.
+      allow read, write: if request.auth != null && request.auth.uid == visitorId;
+    }
+
+    match /presence/{visitorId} {
+      // User can update their OWN presence document.
+      allow read, write: if request.auth != null && request.auth.uid == visitorId;
+    }
+    
+    // Server-only collections
+    match /webhook_logs/{logId} {
+      allow read, write: if false; // Only backend can write
+    }
+
+    // Polling for payments
+    match /paidTransactions/{transactionId} {
+      allow read: if true;
+      allow write: if false; // Only backend can write
+    }
+
+  }
+}
