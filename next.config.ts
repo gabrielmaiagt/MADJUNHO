@@ -1,9 +1,7 @@
 
 import type {NextConfig} from 'next';
-require('dotenv').config();
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -55,11 +53,6 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       }
     ],
-  },
-  devIndicators: {
-    allowedDevOrigins: [
-      'https://9000-firebase-studio-1756361375875.cluster-mdgxqvvkkbfpqrfigfiuugu5pk.cloudworkstations.dev'
-    ]
   },
 };
 
