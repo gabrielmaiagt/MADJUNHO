@@ -1,5 +1,5 @@
 
-import type {Metadata} from 'next';
+import type {Metadata, Viewport} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { ProfileProvider } from '@/context/profile-context';
@@ -12,6 +12,15 @@ import Script from 'next/script';
 export const metadata: Metadata = {
   title: 'Madames Online VIP',
   description: 'Conecte-se com madames e ganhe recompensas.',
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'black-translucent',
+    title: 'Madames VIP',
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: '#09090b',
 };
 
 export default function RootLayout({
@@ -23,7 +32,7 @@ export default function RootLayout({
     <html lang="pt-BR" suppressHydrationWarning>
       <head>
         <link rel="icon" href="https://firebasestorage.googleapis.com/v0/b/mentoros-app.firebasestorage.app/o/media-hub%2FMAbrOVJfktZcWonkiLv4OS8eDc12%2F1781993204208-logo-madames.webp?alt=media&token=6b22c359-b4d6-4618-9503-7ce8ad0ef28f" type="image/webp" />
-        <link rel="apple-touch-icon" href="https://firebasestorage.googleapis.com/v0/b/mentoros-app.firebasestorage.app/o/media-hub%2FMAbrOVJfktZcWonkiLv4OS8eDc12%2F1781993204208-logo-madames.webp?alt=media&token=6b22c359-b4d6-4618-9503-7ce8ad0ef28f" />
+        <link rel="apple-touch-icon" href="/icons/apple-touch-icon.png" />
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
