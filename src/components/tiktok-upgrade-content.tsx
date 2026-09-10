@@ -19,7 +19,6 @@ type TiktokUpgradeContentProps = {
 };
 
 const benefits = [
-  { icon: Coins, text: "Ganhe PIX curtindo" },
   { icon: Infinity, text: "Vídeos ilimitados" },
   { icon: PlayCircle, text: "Lives exclusivas" },
   { icon: UnlockKeyhole, text: "Clube das Madames" },
@@ -131,17 +130,24 @@ export function TiktokUpgradeContent({ onOpenChange, title, onConfirm, isLoading
                     <div
                         key={index}
                         className={cn(
-                            "flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border",
-                            index === 0
-                                ? "bg-green-500/10 border-green-500/30"
-                                : "bg-white/5 border-white/10",
+                            "flex items-center gap-2 sm:gap-3 bg-white/5 p-2.5 sm:p-3 rounded-lg border border-white/10",
                             index === benefits.length - 1 && benefits.length % 2 === 1 && "col-span-2 justify-center"
                         )}
                     >
-                    <benefit.icon className={cn("h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0", index === 0 ? "text-green-400" : "text-primary")} />
-                    <span className={cn("text-xs sm:text-base font-medium leading-tight", index === 0 ? "text-green-300" : "text-neutral-200")}>{benefit.text}</span>
+                    <benefit.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
+                    <span className="text-xs sm:text-base font-medium text-neutral-200 leading-tight">{benefit.text}</span>
                     </div>
                 ))}
+                </div>
+
+                <div className="w-full max-w-md bg-green-500/10 border border-green-500/30 rounded-lg p-3 sm:p-4 text-left mb-4 sm:mb-6">
+                    <div className="flex items-center gap-2 mb-1.5">
+                        <Coins className="h-5 w-5 text-green-400 flex-shrink-0" />
+                        <span className="font-bold text-green-300 text-sm sm:text-base">Ainda dá pra ganhar de volta</span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                        Toda curtida que você dá nos vídeos vira PIX direto no seu saldo. É comum assinante recuperar o valor da taxa só curtindo o feed nos primeiros dias — conteúdo liberado e uma rendinha extra ao mesmo tempo.
+                    </p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-md mb-4 sm:mb-6">
