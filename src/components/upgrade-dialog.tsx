@@ -114,7 +114,7 @@ export function UpgradeDialog({ open, onOpenChange, variant = 'madames', onConfi
         <Dialog open={open} onOpenChange={onOpenChange}>
             <DialogContent 
                 hideCloseButton={false}
-                className="bg-black/95 text-white border-primary/50 w-screen h-dvh max-w-full max-h-full p-0 flex flex-col rounded-none border-none sm:h-auto sm:max-w-lg sm:rounded-lg"
+                className="bg-black/95 text-white border-primary/50 top-0 left-0 right-0 bottom-0 translate-x-0 translate-y-0 w-auto h-auto max-w-full max-h-full p-0 flex flex-col rounded-none border-none sm:top-[50%] sm:left-[50%] sm:right-auto sm:bottom-auto sm:translate-x-[-50%] sm:translate-y-[-50%] sm:h-auto sm:w-full sm:max-w-lg sm:rounded-lg"
             >
                 <TiktokUpgradeContent 
                     onOpenChange={onOpenChange} 

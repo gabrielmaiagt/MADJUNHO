@@ -75,7 +75,7 @@ export function TiktokPaywall({ open, onOpenChange, source }: TiktokPaywallProps
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent 
-          className="bg-black/95 text-white border-primary/50 w-screen h-dvh max-w-full max-h-full p-0 flex flex-col rounded-none border-none"
+          className="bg-black/95 text-white border-primary/50 top-0 left-0 right-0 bottom-0 translate-x-0 translate-y-0 w-auto h-auto max-w-full max-h-full p-0 flex flex-col rounded-none border-none"
           hideCloseButton={false}
           onInteractOutside={(e) => e.preventDefault()}
         >
