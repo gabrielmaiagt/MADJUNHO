@@ -5,7 +5,6 @@ import { useRouter, usePathname } from "next/navigation";
 import { useProfile } from "@/context/profile-context";
 import { useAnalytics } from "@/context/analytics-context";
 import { BottomNav } from "@/components/bottom-nav";
-import { PwaInstallPrompt } from "@/components/pwa-install-prompt";
 import Logo from "@/components/Logo";
 import { cn } from "@/lib/utils";
 
@@ -84,7 +83,6 @@ export default function ShellLayout({ children }: { children: React.ReactNode })
         {children}
       </main>
       {showBottomNav && (isProfileCreated || pathname === '/admin') && <BottomNav activeTab={activeTab} />}
-      <PwaInstallPrompt />
     </div>
   );
 }

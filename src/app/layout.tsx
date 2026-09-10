@@ -7,6 +7,7 @@ import { CartProvider } from '@/context/cart-context';
 import { AnalyticsProvider } from '@/context/analytics-context';
 import { FirebaseClientProvider } from '@/firebase/client-provider';
 import { BalanceProvider } from '@/context/balance-context';
+import { PwaInstallPrompt } from '@/components/pwa-install-prompt';
 import Script from 'next/script';
 
 export const metadata: Metadata = {
@@ -110,6 +111,7 @@ export default function RootLayout({
           </AnalyticsProvider>
         </FirebaseClientProvider>
         <Toaster />
+        <PwaInstallPrompt />
       </body>
     </html>
   );
