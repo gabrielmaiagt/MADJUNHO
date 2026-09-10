@@ -146,7 +146,7 @@ export function TiktokUpgradeContent({ onOpenChange, title, onConfirm, isLoading
                         <span className="font-bold text-green-300 text-sm sm:text-base">Ainda dá pra ganhar de volta</span>
                     </div>
                     <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
-                        Toda curtida que você dá nos vídeos vira PIX direto no seu saldo. É comum assinante recuperar o valor da taxa só curtindo o feed nos primeiros dias — conteúdo liberado e uma rendinha extra ao mesmo tempo.
+                        Toda curtida que você dá nos vídeos vira PIX direto no seu saldo. É comum assinante recuperar o valor da taxa já no primeiro dia só curtindo o feed — conteúdo liberado e uma rendinha extra ao mesmo tempo.
                     </p>
                 </div>
 
