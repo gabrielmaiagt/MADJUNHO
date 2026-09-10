@@ -17,6 +17,7 @@ export function MatchToast({ tip }: MatchToastProps) {
           src={tip.imageUrl}
           alt={tip.name}
           fill
+          sizes="48px"
           className="rounded-full object-cover border-2 border-primary"
         />
       </div>

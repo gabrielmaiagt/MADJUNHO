@@ -63,11 +63,12 @@ const ProductMedia = ({ src, alt }: { src: string; alt: string }) => {
     }
 
     return (
-        <Image 
-            src={imageUrl} 
-            alt={alt} 
-            fill 
-            className="object-cover group-hover:scale-105 transition-transform duration-300" 
+        <Image
+            src={imageUrl}
+            alt={alt}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 300px"
+            className="object-cover group-hover:scale-105 transition-transform duration-300"
             data-ai-hint="hot product"
         />
     );

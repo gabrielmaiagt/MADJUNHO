@@ -109,10 +109,11 @@ export default function LivesPage() {
                                     className="relative overflow-hidden cursor-pointer group aspect-square"
                                     onClick={() => handleLiveClick(live.id, isActuallyLocked, isWatchable)}
                                 >
-                                    <Image 
-                                        src={live.imageUrl} 
-                                        alt={live.user.name} 
-                                        fill 
+                                    <Image
+                                        src={live.imageUrl}
+                                        alt={live.user.name}
+                                        fill
+                                        sizes="(max-width: 640px) 50vw, (max-width: 1280px) 33vw, 300px"
                                         unoptimized={live.user.name === 'Renata'}
                                         className={cn(
                                             "w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"

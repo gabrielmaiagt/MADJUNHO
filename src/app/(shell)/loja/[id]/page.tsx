@@ -163,7 +163,7 @@ export default function ProductDetailPage() {
                                                         controls
                                                     />
                                                 ) : (
-                                                    <Image src={mediaUrl} alt={`${product.name} - mídia ${index + 1}`} fill className="object-contain bg-white"/>
+                                                    <Image src={mediaUrl} alt={`${product.name} - mídia ${index + 1}`} fill sizes="100vw" className="object-contain bg-white"/>
                                                 )}
                                             </div>
                                         </CarouselItem>

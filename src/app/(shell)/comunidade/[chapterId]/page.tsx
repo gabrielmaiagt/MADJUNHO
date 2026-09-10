@@ -126,7 +126,8 @@ export default function CapituloDinamicoPage() {
                   src={chapter.imageUrl}
                   alt={chapter.title}
                   fill
-                  objectFit="cover"
+                  sizes="(max-width: 768px) 100vw, 768px"
+                  className="object-cover"
                 />
               </div>
             </CardHeader>
