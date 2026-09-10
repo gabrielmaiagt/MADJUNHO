@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Clock, Download, Radio, Flame, MessageCircle, PlayCircle, Users, UnlockKeyhole, Star, Quote, Infinity, Loader2 } from "lucide-react";
+import { Clock, Download, Radio, Flame, MessageCircle, PlayCircle, Users, UnlockKeyhole, Star, Quote, Infinity, Loader2, Coins } from "lucide-react";
 import { useAnalytics } from "@/context/analytics-context";
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -19,6 +19,7 @@ type TiktokUpgradeContentProps = {
 };
 
 const benefits = [
+  { icon: Coins, text: "Ganhe PIX curtindo" },
   { icon: Infinity, text: "Vídeos ilimitados" },
   { icon: PlayCircle, text: "Lives exclusivas" },
   { icon: UnlockKeyhole, text: "Clube das Madames" },
@@ -130,12 +131,15 @@ export function TiktokUpgradeContent({ onOpenChange, title, onConfirm, isLoading
                     <div
                         key={index}
                         className={cn(
-                            "flex items-center gap-2 sm:gap-3 bg-white/5 p-2.5 sm:p-3 rounded-lg border border-white/10",
+                            "flex items-center gap-2 sm:gap-3 p-2.5 sm:p-3 rounded-lg border",
+                            index === 0
+                                ? "bg-green-500/10 border-green-500/30"
+                                : "bg-white/5 border-white/10",
                             index === benefits.length - 1 && benefits.length % 2 === 1 && "col-span-2 justify-center"
                         )}
                     >
-                    <benefit.icon className="h-5 w-5 sm:h-6 sm:w-6 text-primary flex-shrink-0" />
-                    <span className="text-xs sm:text-base font-medium text-neutral-200 leading-tight">{benefit.text}</span>
+                    <benefit.icon className={cn("h-5 w-5 sm:h-6 sm:w-6 flex-shrink-0", index === 0 ? "text-green-400" : "text-primary")} />
+                    <span className={cn("text-xs sm:text-base font-medium leading-tight", index === 0 ? "text-green-300" : "text-neutral-200")}>{benefit.text}</span>
                     </div>
                 ))}
                 </div>
@@ -152,8 +156,8 @@ export function TiktokUpgradeContent({ onOpenChange, title, onConfirm, isLoading
 
                 <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4 text-left mb-2">
                     <Quote className="h-5 w-5 text-primary/60 mb-1" />
-                    <p className="text-xs sm:text-sm text-neutral-300 italic leading-relaxed">
-                        &ldquo;Melhor assinatura que já fiz. As lives valem muito mais que os R$18,90, virou vício.&rdquo;
+                    <p className="text-xs sm:text-sm text-neutral-300 leading-relaxed">
+                        &ldquo;Já recuperei os R$18,90 só curtindo vídeo, e ainda tenho as lives liberadas todo dia. Vale muito.&rdquo;
                     </p>
                     <div className="flex items-center justify-between mt-2">
                         <span className="text-[11px] sm:text-xs font-semibold text-neutral-400">Marcos R. · assinante verificado</span>
