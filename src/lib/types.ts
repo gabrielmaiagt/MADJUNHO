@@ -182,7 +182,7 @@ export type TransactionData = {
     id: string;
     status: string;
     pix: {
-        payload: string; // This corresponds to 'code' from BuckPay
+        payload: string; // This corresponds to 'pix_qr_code' from Frendz
         qr_code_base64: string | null | undefined;
     };
 };

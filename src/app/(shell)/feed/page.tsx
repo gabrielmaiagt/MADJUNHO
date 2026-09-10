@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect } from 'react';
-import { MainLayout } from "@/components/main-layout";
 import { useAnalytics } from '@/context/analytics-context';
 import { ChapterCard } from '@/components/comunidade/chapter-card';
 import { Skeleton } from '@/components/ui/skeleton';
@@ -18,7 +17,6 @@ export default function FeedPage() {
     }, [trackEvent]);
 
     return (
-        <MainLayout activeTab="feed">
            <div className="p-4 sm:p-6 md:p-8 pb-28">
                 <header className="mb-6">
                     <h1 className="text-4xl font-bold">Guia do Novinho</h1>
@@ -53,6 +51,5 @@ export default function FeedPage() {
                     )}
                </div>
            </div>
-        </MainLayout>
     );
 }

@@ -1,5 +1,4 @@
 'use client';
-import { MainLayout } from '@/components/main-layout';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardHeader } from '@/components/ui/card';
 import { useRouter } from 'next/navigation';
@@ -100,8 +99,6 @@ export default function GruposPage() {
     .sort((a,b) => targetMadameNames.indexOf(a.user.name) - targetMadameNames.indexOf(b.user.name));
   
   return (
-    <>
-      <MainLayout activeTab="grupos">
         <div className="p-4 sm:p-6 md:p-8 pb-28">
           <div className="max-w-2xl mx-auto">
               <div className="flex justify-between items-center mb-4">
@@ -210,7 +207,5 @@ export default function GruposPage() {
               </div>
           </div>
         </div>
-      </MainLayout>
-    </>
   );
 }

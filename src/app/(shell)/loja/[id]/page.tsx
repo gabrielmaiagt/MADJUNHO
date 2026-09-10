@@ -11,7 +11,6 @@ import { Star, Tag, Check, ShoppingCart } from 'lucide-react';
 import BackButton from '@/components/BackButton';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { MainLayout } from '@/components/main-layout';
 import { useCart } from '@/context/cart-context';
 import { useToast } from '@/hooks/use-toast';
 import { CartSheet } from '@/components/cart-sheet';
@@ -106,17 +105,14 @@ export default function ProductDetailPage() {
 
     if (isLoadingProduct) {
         return (
-             <MainLayout activeTab="comunidade">
                  <div className="flex h-screen items-center justify-center bg-black">
                     <Loader2 className="h-8 w-8 text-white animate-spin" />
                 </div>
-            </MainLayout>
         );
     }
 
     if (!product) {
          return (
-             <MainLayout activeTab="comunidade">
                  <div className="flex flex-col h-screen items-center justify-center bg-black text-center p-4">
                     <h1 className="text-2xl font-bold">Produto não encontrado</h1>
                     <p className="text-muted-foreground">O produto que você está procurando não existe ou foi removido.</p>
@@ -124,7 +120,6 @@ export default function ProductDetailPage() {
                         Voltar para a Loja
                     </Button>
                 </div>
-            </MainLayout>
         );
     }
     
@@ -134,7 +129,6 @@ export default function ProductDetailPage() {
 
     return (
         <>
-             <MainLayout activeTab="comunidade">
                 <div className="bg-black min-h-screen text-white pb-40">
                      <header className="fixed top-0 left-0 right-0 z-20 bg-black/80 backdrop-blur-sm p-3">
                         <div className="flex items-center justify-between">
@@ -275,7 +269,6 @@ export default function ProductDetailPage() {
                         </div>
                     </footer>
                 </div>
-            </MainLayout>
             <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />
             {product && (
                 <CheckoutDialog 

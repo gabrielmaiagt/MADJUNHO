@@ -1,11 +1,9 @@
 
-import { MainLayout } from "@/components/main-layout";
 import { Skeleton } from "@/components/ui/skeleton";
 import { ShoppingCart } from "lucide-react";
 
 export default function Loading() {
   return (
-    <MainLayout activeTab="comunidade">
         <div className="bg-black min-h-screen text-white">
             <header className="fixed top-0 left-0 right-0 z-20 bg-black/80 backdrop-blur-sm p-3 flex items-center justify-center">
                 <div className="flex items-center gap-6 text-white font-semibold">
@@ -33,6 +31,5 @@ export default function Loading() {
                 </div>
             </main>
         </div>
-   </MainLayout>
   );
 }

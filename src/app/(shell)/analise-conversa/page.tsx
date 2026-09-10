@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useRef } from 'react';
-import { MainLayout } from "@/components/main-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Upload, Sparkles, Loader2 } from 'lucide-react';
@@ -91,7 +90,6 @@ export default function AnaliseConversaPage() {
 
     return (
         <>
-            <MainLayout activeTab="grupos">
                 <main className="p-4 sm:p-6 md:p-8">
                     <div className="max-w-2xl mx-auto">
                          <div className="mb-4">
@@ -146,7 +144,6 @@ export default function AnaliseConversaPage() {
                         </Card>
                     </div>
                 </main>
-            </MainLayout>
 
             {checkoutInfo && (
                 <CheckoutDialog

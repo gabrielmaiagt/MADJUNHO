@@ -1,6 +1,5 @@
 
 'use client';
-import { MainLayout } from "@/components/main-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { BookOpen, Sparkles, Key } from "lucide-react";
 import Image from "next/image";
@@ -81,7 +80,6 @@ export default function CapituloDinamicoPage() {
 
    if (isLoading) {
     return (
-      <MainLayout activeTab="comunidade">
         <main className="p-4 sm:p-6 md:p-8 pb-28">
             <div className="max-w-4xl mx-auto space-y-4">
                  <Skeleton className="h-12 w-3/4" />
@@ -91,31 +89,27 @@ export default function CapituloDinamicoPage() {
                  <Skeleton className="h-20 w-full" />
             </div>
         </main>
-      </MainLayout>
     );
   }
 
   if (!chapter) {
     return (
-       <MainLayout activeTab="comunidade">
         <main className="p-4 sm:p-6 md:p-8 pb-28">
             <div className="max-w-4xl mx-auto text-center">
                 <p>Capítulo não encontrado.</p>
                 <Button onClick={() => router.push('/comunidade')} className="mt-4">Voltar ao Feed</Button>
             </div>
         </main>
-      </MainLayout>
     )
   }
 
   return (
-    <MainLayout activeTab="comunidade">
       <main className="p-4 sm:p-6 md:p-8 pb-28">
         <div className="max-w-4xl mx-auto">
           <div className="mb-4">
             <BackButton />
           </div>
-          
+
           <Card>
             <CardHeader>
               <div className="flex items-center gap-4 mb-4">
@@ -142,6 +136,5 @@ export default function CapituloDinamicoPage() {
           </Card>
         </div>
       </main>
-    </MainLayout>
   );
 }

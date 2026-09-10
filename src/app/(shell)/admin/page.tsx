@@ -1,7 +1,6 @@
 
 "use client";
 
-import { MainLayout } from "@/components/main-layout";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Users, Eye, ShoppingCart, BarChart3, DollarSign, Video, CheckCircle, Edit, Trash, PlusCircle, BookOpen, Clapperboard, QrCode, MousePointerClick, PlayCircle, Pointer, Trash2, AlertTriangle, Wand2, Loader2, Code, Copy, TestTube2, ShoppingBasket, UserPlus, UserX, Route, Eraser, Map, LayoutDashboard, FileBox, LineChart, Wrench, Activity, Package, Binary, Link as LinkIcon, Handshake, Filter, TrendingUp, Clock, Key, Wifi } from "lucide-react";
@@ -505,10 +504,10 @@ export default function AdminPage() {
         if (!webhookLogs) return [];
         if (webhookFilter === 'all') return webhookLogs;
         if (webhookFilter === 'paid') {
-            return webhookLogs.filter(log => log.payload?.event === 'transaction.processed' && (log.payload?.data?.transaction?.status === 'paid' || log.payload?.data?.status === 'paid'));
+            return webhookLogs.filter(log => log.payload?.payment_status === 'paid');
         }
         if (webhookFilter === 'created') {
-            return webhookLogs.filter(log => log.payload?.event === 'transaction.created');
+            return webhookLogs.filter(log => log.payload?.payment_status === 'waiting_payment');
         }
         return webhookLogs;
     }, [webhookLogs, webhookFilter]);
@@ -518,9 +517,7 @@ export default function AdminPage() {
 
     if (isLoading) {
         return (
-             <MainLayout activeTab="admin">
                 <div className="flex h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin" /></div>
-            </MainLayout>
         );
     }
     
@@ -985,19 +982,23 @@ export default function AdminPage() {
             <CardContent>
                 <div className="divide-y divide-border max-h-screen overflow-y-auto">
                     {filteredWebhooks?.map((log) => {
-                        const event = log.payload?.event || 'Evento Desconhecido';
-                        const data = log.payload?.data?.transaction || log.payload?.data;
-                        const status = data?.status || 'N/A';
-                        const amount = data?.total_amount ? (data.total_amount / 100).toFixed(2).replace('.',',') : 'N/A';
+                        const status = log.payload?.payment_status || 'N/A';
+                        const event = log.payload?.hash ? `Transação ${log.payload.hash}` : 'Evento Desconhecido';
+                        const amount = log.payload?.amount ? (log.payload.amount / 100).toFixed(2).replace('.',',') : 'N/A';
 
                         const getStatusBadge = (status: string) => {
                           switch (status) {
                             case 'paid':
                               return <Badge variant="default" className="bg-green-500/80">Pago</Badge>;
-                            case 'pending':
+                            case 'waiting_payment':
+                            case 'processing':
                               return <Badge variant="secondary">Pendente</Badge>;
-                            case 'failed':
+                            case 'refused':
+                            case 'canceled':
+                            case 'chargedback':
                               return <Badge variant="destructive">Falhou</Badge>;
+                            case 'refunded':
+                              return <Badge variant="outline">Reembolsado</Badge>;
                             default:
                               return <Badge variant="outline">{status}</Badge>;
                           }
@@ -1093,7 +1094,7 @@ export default function AdminPage() {
     );
 
     return (
-        <MainLayout activeTab="admin">
+        <>
              <div className="max-w-7xl mx-auto space-y-8 p-4 sm:p-6 md:p-8 pb-28">
                 <header className="space-y-2">
                     <div className="flex items-center gap-3">
@@ -1228,6 +1229,6 @@ export default function AdminPage() {
             <Dialog open={isVideoPostFormOpen} onOpenChange={setIsVideoPostFormOpen}><DialogContent className="sm:max-w-[625px]"><DialogHeader><DialogTitle>{selectedVideoPost ? 'Editar Vídeo' : 'Adicionar Novo Vídeo'}</DialogTitle><DialogDescription>Preencha os detalhes do vídeo abaixo. Clique em salvar quando terminar.</DialogDescription></DialogHeader><VideoPostForm videoPost={selectedVideoPost} onSubmit={handleVideoPostFormSubmit} onCancel={() => setIsVideoPostFormOpen(false)} /></DialogContent></Dialog>
             <Dialog open={isAnalysisDialogOpen} onOpenChange={setIsAnalysisDialogOpen}><DialogContent className="sm:max-w-2xl"><DialogHeader><DialogTitle className="flex items-center gap-2"><Wand2 className="h-6 w-6 text-primary"/>Análise do Erro com IA</DialogTitle><DialogDescription>A inteligência artificial analisou o erro e forneceu as seguintes informações.</DialogDescription></DialogHeader>{isAnalyzingError ? (<div className="flex flex-col items-center justify-center space-y-3 py-10"><Loader2 className="h-8 w-8 animate-spin text-primary" /><p>Analisando o erro...</p></div>) : analysisResult ? (<div className="space-y-4 pt-4"><div><h3 className="font-bold text-lg">Análise do Problema</h3><p className="text-muted-foreground">{analysisResult.analysis}</p></div><div><h3 className="font-bold text-lg">Causa Provável</h3><p className="text-muted-foreground">{analysisResult.possibleCause}</p></div><div><h3 className="font-bold text-lg">Sugestão para Resolução</h3><p className="text-muted-foreground">{analysisResult.suggestion}</p></div></div>) : (<div className="text-center py-10"><p>Não foi possível obter uma análise.</p></div>)}</DialogContent></Dialog>
             <PixDialogWithTimer open={isPixDialogOpen} onOpenChange={setIsPixDialogOpen} transaction={generatedPix} />
-        </MainLayout>
+        </>
     );
 }

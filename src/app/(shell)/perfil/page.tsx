@@ -2,7 +2,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { MainLayout } from "@/components/main-layout";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -205,7 +204,6 @@ export default function PerfilPage() {
 
     return (
         <>
-            <MainLayout activeTab="perfil">
                 <main className="p-4 sm:p-6 md:p-8 pb-24">
                     <div className="max-w-2xl mx-auto space-y-6">
                         <header className="flex items-center gap-4">
@@ -321,8 +319,7 @@ export default function PerfilPage() {
                         </Card>
                     </div>
                 </main>
-            </MainLayout>
-            
+
             <Dialog open={isWithdrawalDialogOpen} onOpenChange={setIsWithdrawalDialogOpen}>
                 <DialogContent>
                     <DialogHeader className="items-center text-center space-y-4">

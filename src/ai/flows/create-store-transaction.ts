@@ -1,7 +1,7 @@
 
 "use server";
 /**
- * @fileOverview Creates a PIX transaction using the BuckPay API for store items with randomized buyer data.
+ * @fileOverview Creates a PIX transaction using the Frendz API for store items with randomized buyer data.
  */
 
 import type { TransactionData } from '@/lib/types';
@@ -27,53 +27,57 @@ export type CreateStoreTransactionInput = {
 function generateRandomBuyer() {
     const nomes = ['Ana', 'Carlos', 'Maria', 'Pedro', 'Julia', 'Lucas', 'Fernanda', 'Rafael', 'Camila', 'Bruno', 'Luciana', 'Ricardo', 'Beatriz', 'Marcos', 'Larissa'];
     const sobrenomes = ['Silva', 'Santos', 'Oliveira', 'Souza', 'Lima', 'Pereira', 'Costa', 'Ferreira', 'Almeida', 'Ribeiro', 'Barbosa', 'Carvalho', 'Mendes', 'Teixeira'];
-    
+
     const nome = nomes[Math.floor(Math.random() * nomes.length)];
     const sobrenome = sobrenomes[Math.floor(Math.random() * sobrenomes.length)];
     const name = `${nome} ${sobrenome}`;
-    
+
     const timestamp = Date.now();
     const randomStr = Math.random().toString(36).substring(2, 7);
     const email = `cliente_${timestamp}_${randomStr}@mail.com`;
-    
+
     // CPF fixo conforme solicitado
     const document = "24987584026";
-    
-    // Telefone aleatório: 55 + DDD + 9 + 8 dígitos (total 13 caracteres)
+
+    // Telefone aleatório: DDD + 9 + 8 dígitos (total 11 caracteres, sem DDI)
     const ddds = ['11', '21', '31', '41', '51', '61', '71', '81', '85', '27'];
     const ddd = ddds[Math.floor(Math.random() * ddds.length)];
-    const randomPhone = Math.floor(10000000 + Math.random() * 90000000); 
-    const phone = `55${ddd}9${randomPhone}`;
-    
+    const randomPhone = Math.floor(10000000 + Math.random() * 90000000);
+    const phone = `${ddd}9${randomPhone}`;
+
     return { name, email, document, phone };
 }
 
 export async function createStoreTransaction(input: CreateStoreTransactionInput): Promise<TransactionData> {
-    const token = process.env.BUCKPAY_API_KEY!;
-    const userAgent = "Buckpay API";
-    const externalId = `ST-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+    const token = process.env.FRENDZ_API_TOKEN!;
+    const productHash = process.env.FRENDZ_PRODUCT_HASH!;
+    const offerHash = process.env.FRENDZ_OFFER_HASH!;
+    const amountInCents = Math.round((input.amount || 0) * 100);
 
     const buyer = generateRandomBuyer();
 
     const body = {
-      external_id: externalId,
+      amount: amountInCents,
+      offer_hash: offerHash,
       payment_method: "pix",
-      amount: Math.round((input.amount || 0) * 100),
-      buyer: {
+      customer: {
         name: buyer.name,
         email: buyer.email,
-        phone: buyer.phone,
-        document: buyer.document
+        phone_number: buyer.phone,
+        document: buyer.document,
       },
-      product: {
-        id: (input.productName || "store-item").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/[^a-z0-9]+/g, '-'),
-        name: (input.productName || "Produto da Loja").substring(0, 100)
-      },
-      offer: {
-        id: (input.source || "store").toLowerCase().replace(/[^a-z0-9]+/g, '-'),
-        name: (input.productName || "Venda Direta").substring(0, 100),
-        quantity: 1
-      },
+      cart: [
+        {
+          product_hash: productHash,
+          title: (input.productName || "Produto da Loja").substring(0, 100),
+          price: amountInCents,
+          quantity: 1,
+          operation_type: 1,
+          tangible: false,
+        },
+      ],
+      expire_in_days: 1,
+      transaction_origin: "api",
       tracking: {
         ref: input.tracking?.ref || null,
         src: input.tracking?.src || null,
@@ -84,38 +88,37 @@ export async function createStoreTransaction(input: CreateStoreTransactionInput)
         utm_id: input.tracking?.utm_id || null,
         utm_term: input.tracking?.utm_term || null,
         utm_content: input.tracking?.utm_content || null,
-        utmify_visitor_id: input.tracking?.utmify_visitor_id || null
-      }
+        utmify_visitor_id: input.tracking?.utmify_visitor_id || null,
+      },
+      postback_url: "https://madames.online/api/webhook",
     };
 
     try {
-      const response = await fetch('https://api.realtechdev.com.br/v1/transactions', {
+      const response = await fetch(`https://api.frendz.com.br/api/public/v1/transactions?api_token=${token}`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${token}`,
-          'User-Agent': userAgent,
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(body),
       });
 
       const responseData = await response.json();
-      
+
       if (!response.ok) {
-        console.error('BuckPay API Error Response:', JSON.stringify(responseData, null, 2));
-        throw new Error(responseData.error?.message || responseData.message || 'Erro na API BuckPay');
+        console.error('Frendz API Error Response:', JSON.stringify(responseData, null, 2));
+        throw new Error(responseData.message || 'Erro na API Frendz');
       }
 
-      if (!responseData.data || !responseData.data.pix) {
-        throw new Error('Resposta da API BuckPay em formato inesperado');
+      if (!responseData.hash || !responseData.pix) {
+        throw new Error('Resposta da API Frendz em formato inesperado');
       }
 
       return {
-        id: responseData.data.id, // Use the real BuckPay ID for polling
-        status: responseData.data.status || 'pending',
+        id: responseData.hash,
+        status: responseData.payment_status || 'waiting_payment',
         pix: {
-          payload: responseData.data.pix.code,
-          qr_code_base64: responseData.data.pix.qrcode_base64 || null,
+          payload: responseData.pix.pix_qr_code,
+          qr_code_base64: responseData.pix.qr_code_base64 || null,
         },
       };
 

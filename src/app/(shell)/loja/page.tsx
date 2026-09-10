@@ -1,12 +1,12 @@
 
+
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { Star, Tag, ShoppingCart, Loader2 } from "lucide-react";
+import { Star, Tag, ShoppingCart } from "lucide-react";
 import Image from "next/image";
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
-import { MainLayout } from "@/components/main-layout";
 import { Button } from "@/components/ui/button";
 import { useCart } from "@/context/cart-context";
 import { CartSheet } from "@/components/cart-sheet";
@@ -101,19 +101,27 @@ export default function LojaPage() {
 
     return (
         <>
-           <MainLayout activeTab="comunidade">
                 <div className="bg-black min-h-screen text-white">
-                     <header className="fixed top-0 left-0 right-0 z-20 bg-black/80 backdrop-blur-sm p-3">
-                        <div className="flex items-center justify-between">
+                    <div className="absolute top-0 left-0 right-0 z-20 pt-4 px-4 bg-gradient-to-b from-black/60 to-transparent">
+                        <header className="flex justify-between items-center">
                             <h1 className="text-2xl font-bold text-white">Loja</h1>
                              <BalanceDisplay />
-                        </div>
-                    </header>
+                        </header>
+                    </div>
 
                     <main className="pt-20 pb-28 px-3">
                         {showLoadingSkeleton ? (
-                             <div className="flex h-64 items-center justify-center">
-                                <Loader2 className="h-8 w-8 text-white animate-spin" />
+                             <div className="grid grid-cols-2 gap-3">
+                                {[...Array(4)].map((_, i) => (
+                                    <div key={i} className="bg-[#1a1a1a] rounded-lg overflow-hidden flex flex-col">
+                                        <Skeleton className="aspect-square w-full bg-muted/20" />
+                                        <div className="p-3 space-y-2">
+                                            <Skeleton className="h-4 w-3/4 bg-muted/20" />
+                                            <Skeleton className="h-6 w-1/2 bg-muted/20" />
+                                            <Skeleton className="h-4 w-full bg-muted/20" />
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
                         ) : (
                              <>
@@ -185,7 +193,6 @@ export default function LojaPage() {
                         </Button>
                     </div>
                 </div>
-           </MainLayout>
            <CartSheet open={isCartOpen} onOpenChange={setIsCartOpen} />
         </>
     );

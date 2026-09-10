@@ -49,23 +49,25 @@ export const processWebhook = ai.defineFlow(
     async ({ body, firebaseClientEmail, firebasePrivateKey }) => {
         try {
             const { db } = getFirebaseAdmin(firebaseClientEmail, firebasePrivateKey);
-            
+
             const webhookLogRef = db.collection('webhook_logs').doc();
             await webhookLogRef.set({
                 payload: body,
                 receivedAt: FieldValue.serverTimestamp()
             });
 
-            console.log('Webhook BuckPay recebido:', body.event);
+            // Frendz posta o próprio objeto da transação (sem envelope "event"/"data").
+            const status = body.payment_status;
+            const externalId = body.hash || body.id;
+            const amountInBRL = body.amount ? body.amount / 100 : 0;
+
+            console.log('Webhook Frendz recebido:', externalId, status);
 
             const analyticsRef = db.collection('analytics').doc('summary');
-            const status = body.data?.status;
-            const externalId = body.data?.external_id || body.data?.id;
-            const amountInBRL = body.data?.total_amount ? body.data.total_amount / 100 : 0;
-            
-            if (body.event === 'transaction.created') {
+
+            if (status === 'waiting_payment') {
                 await analyticsRef.set({ 'events.generate_pix': FieldValue.increment(1) }, { merge: true });
-            } else if (body.event === 'transaction.processed' && status === 'paid') {
+            } else if (status === 'paid') {
                 console.log(`✅ Pagamento APROVADO: ${externalId} no valor de ${amountInBRL} BRL.`);
 
                 const firestoreUpdate: { [key: string]: any } = {

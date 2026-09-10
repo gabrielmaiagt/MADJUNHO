@@ -1,7 +1,7 @@
 
 "use server";
 /**
- * @fileOverview Analyzes a payment error message from the BuckPay API.
+ * @fileOverview Analyzes a payment error message from the Frendz API.
  *
  * - analyzePaymentError - A function that interprets the error and suggests a solution.
  * - AnalyzePaymentErrorInput - The input type for the function.
@@ -12,7 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 
 const AnalyzePaymentErrorInputSchema = z.object({
-  errorMessage: z.string().describe("The full error message returned by the BuckPay API integration."),
+  errorMessage: z.string().describe("The full error message returned by the Frendz API integration."),
 });
 export type AnalyzePaymentErrorInput = z.infer<typeof AnalyzePaymentErrorInputSchema>;
 
@@ -31,16 +31,16 @@ const prompt = ai.definePrompt({
   name: 'analyzePaymentErrorPrompt',
   input: { schema: AnalyzePaymentErrorInputSchema },
   output: { schema: AnalyzePaymentErrorOutputSchema },
-  prompt: `You are an expert developer specializing in the "BuckPay" payment gateway API. You are debugging an integration within a Next.js application.
+  prompt: `You are an expert developer specializing in the "Frendz" payment gateway API. You are debugging an integration within a Next.js application.
 
 Your task is to analyze the provided error message and give a clear, actionable diagnosis for another developer.
 
 **Context of the Application:**
-- The application uses the BuckPay API to create PIX transactions.
-- Authentication uses 'Authorization: Bearer <token>' and a specific 'User-Agent: Buckpay API'.
-- The code sends 'external_id', 'amount' (in cents), and a 'buyer' object.
-- The 'buyer' object must have 'name' (min 3 chars), 'email'. 'phone' must be 12-13 digits starting with 55.
-- Tracking fields (ref, src, sck, etc.) are also sent and must follow string/null constraints.
+- The application uses the Frendz API (https://api.frendz.com.br/api/public/v1) to create PIX transactions.
+- Authentication uses an 'api_token' query parameter (not a header) on every request.
+- The code sends 'amount' (in cents), 'offer_hash', 'payment_method', a 'customer' object, and a 'cart' array (each item needs a valid 'product_hash' already registered in the Frendz account).
+- The 'customer' object must have 'name', 'email', 'phone_number' (DDD + number, no country code), and 'document' (CPF/CNPJ, digits only).
+- Errors come back as '{ success: false, message, errors: { field: [messages] } }' with a 422 status for validation issues, or 401 for an invalid/missing token.
 
 **Error Message to Analyze:**
 '''
@@ -48,11 +48,11 @@ Your task is to analyze the provided error message and give a clear, actionable 
 '''
 
 **Analysis Steps:**
-1.  **Analyze the Error:** Based on the message, what happened? Is it "Unauthorized" (401), "Bad Request" (400) - like 'transaction_already_exists', or a validation error in 'buyer' or 'tracking'?
+1.  **Analyze the Error:** Based on the message, what happened? Is it "Unauthorized" (401), a validation error (422) on 'customer', 'cart', or 'offer_hash', or a "not found" (404) on a hash?
 2.  **Identify the Likely Cause:**
-    *   If the error is **"Unauthorized" (401)**: The Bearer token is likely wrong, or the User-Agent header is missing/incorrect.
-    *   If the error is **"Bad Request" (400)**: Check if 'amount' is an integer, if 'phone' has the correct format (55 + DDD + number), or if the 'buyer.name' is at least 3 characters.
-    *   If the error is **"Forbidden" (403)**: The account status might be blocked or pending.
+    *   If the error is **"Unauthorized" (401)**: The 'api_token' query parameter is likely wrong, missing, or expired.
+    *   If the error is **validation (422)**: Check if 'amount' is an integer in cents, if 'customer.phone_number'/'customer.document' contain only digits, or if 'offer_hash'/'cart[].product_hash' reference a product that actually exists in the Frendz account.
+    *   If the error is **"Not Found" (404)**: The 'offer_hash' or 'product_hash' does not exist in this Frendz account (e.g. wrong FRENDZ_PRODUCT_HASH/FRENDZ_OFFER_HASH env vars).
 3.  **Formulate a Suggestion:** Provide a clear, step-by-step action the developer should take.
 
 **Your Output (in Portuguese):**

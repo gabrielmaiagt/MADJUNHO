@@ -1,7 +1,6 @@
 
 "use client";
 
-import { MainLayout } from "@/components/main-layout";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles, MessageCircle, UserSquare, Camera } from "lucide-react";
 import Link from "next/link";
@@ -39,7 +38,6 @@ export default function LaboratorioIaPage() {
   const { trackEvent } = useAnalytics();
 
   return (
-    <MainLayout activeTab="grupos">
       <main className="flex-1 p-4 sm:p-6 md:p-8">
         <div className="max-w-4xl mx-auto space-y-8 pb-28">
             <header className="space-y-2">
@@ -76,7 +74,6 @@ export default function LaboratorioIaPage() {
             </div>
         </div>
       </main>
-    </MainLayout>
   );
 }
 

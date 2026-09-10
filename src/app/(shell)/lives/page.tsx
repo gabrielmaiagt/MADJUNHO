@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { MainLayout } from "@/components/main-layout";
 import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
@@ -87,7 +86,6 @@ export default function LivesPage() {
 
     return (
         <>
-            <MainLayout activeTab="comunidade">
                 <div className="flex flex-col h-full bg-black">
                     {/* Cabeçalho Fixo - Impede que o scroll suba além daqui */}
                     <div className="z-20 pt-4 px-4 pb-4 bg-gradient-to-b from-black to-black/80 border-b border-white/5">
@@ -158,8 +156,7 @@ export default function LivesPage() {
                         </div>
                     </div>
                 </div>
-            </MainLayout>
-            <UpgradeDialog 
+            <UpgradeDialog
                 open={showUpgradeDialog} 
                 onOpenChange={setShowUpgradeDialog} 
                 variant="tiktok"

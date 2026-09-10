@@ -33,8 +33,10 @@ export default function RootLayout({
           src="https://cdn.utmify.com.br/scripts/utms/latest.js"
           async
           defer
+          data-utmify-prevent-xcod-sck=""
+          data-utmify-prevent-subids=""
         ></script>
-        
+
         {/* UTMify Pixel */}
         <Script id="utmify-pixel" strategy="afterInteractive">
           {`
