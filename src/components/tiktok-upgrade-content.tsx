@@ -2,7 +2,7 @@
 "use client";
 
 import { Button } from "@/components/ui/button";
-import { Clock, Download, Radio, Lock, MessageCircle, PlayCircle, Users, UnlockKeyhole, X, Infinity, Loader2, Heart } from "lucide-react";
+import { Clock, Download, Radio, Flame, MessageCircle, PlayCircle, Users, UnlockKeyhole, Star, Quote, Infinity, Loader2 } from "lucide-react";
 import { useAnalytics } from "@/context/analytics-context";
 import React, { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
@@ -24,6 +24,12 @@ const benefits = [
   { icon: UnlockKeyhole, text: "Clube das Madames" },
   { icon: MessageCircle, text: "Comente à vontade" },
   { icon: Download, text: "Baixe em alta qualidade" },
+];
+
+const stats = [
+  { icon: Flame, value: "500+", label: "vídeos picantes" },
+  { icon: Radio, value: "12", label: "lives por semana" },
+  { icon: Star, value: "4.9", label: "avaliação média" },
 ];
 
 const OFFER_DURATION = 10 * 60; // 10 minutes in seconds
@@ -119,7 +125,7 @@ export function TiktokUpgradeContent({ onOpenChange, title, onConfirm, isLoading
                     Desbloqueie tudo isso agora:
                 </p>
 
-                <div className="grid grid-cols-2 gap-2 sm:gap-3 my-4 sm:my-8 w-full max-w-md text-left">
+                <div className="grid grid-cols-2 gap-2 sm:gap-3 mt-4 sm:mt-8 mb-4 sm:mb-6 w-full max-w-md text-left">
                 {benefits.map((benefit, index) => (
                     <div
                         key={index}
@@ -132,6 +138,31 @@ export function TiktokUpgradeContent({ onOpenChange, title, onConfirm, isLoading
                     <span className="text-xs sm:text-base font-medium text-neutral-200 leading-tight">{benefit.text}</span>
                     </div>
                 ))}
+                </div>
+
+                <div className="grid grid-cols-3 gap-2 sm:gap-3 w-full max-w-md mb-4 sm:mb-6">
+                {stats.map((stat, index) => (
+                    <div key={index} className="flex flex-col items-center gap-1 bg-white/5 p-2.5 sm:p-3 rounded-lg border border-white/10">
+                        <stat.icon className="h-4 w-4 sm:h-5 sm:w-5 text-primary" />
+                        <span className="text-base sm:text-xl font-extrabold text-white leading-none">{stat.value}</span>
+                        <span className="text-[10px] sm:text-xs text-neutral-400 text-center leading-tight">{stat.label}</span>
+                    </div>
+                ))}
+                </div>
+
+                <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-lg p-3 sm:p-4 text-left mb-2">
+                    <Quote className="h-5 w-5 text-primary/60 mb-1" />
+                    <p className="text-xs sm:text-sm text-neutral-300 italic leading-relaxed">
+                        &ldquo;Melhor assinatura que já fiz. As lives valem muito mais que os R$18,90, virou vício.&rdquo;
+                    </p>
+                    <div className="flex items-center justify-between mt-2">
+                        <span className="text-[11px] sm:text-xs font-semibold text-neutral-400">Marcos R. · assinante verificado</span>
+                        <div className="flex gap-0.5 text-amber-400">
+                            {Array.from({ length: 5 }).map((_, i) => (
+                                <Star key={i} className="h-3 w-3 sm:h-3.5 sm:w-3.5 fill-amber-400" />
+                            ))}
+                        </div>
+                    </div>
                 </div>
             </div>
         </ScrollArea>
