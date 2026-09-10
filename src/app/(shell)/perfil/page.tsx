@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Camera, User, Key, DollarSign, Target, Zap, ShieldCheck, Users, Copy, Loader2 } from "lucide-react";
+import { Camera, User, Key, DollarSign, Target, Zap, ShieldCheck, Users, Copy, Loader2, Rocket } from "lucide-react";
 import { useProfile } from "@/context/profile-context";
 import { useToast } from "@/hooks/use-toast";
 import { useBalance } from "@/context/balance-context";
@@ -40,6 +40,8 @@ export default function PerfilPage() {
     // New states for withdrawal flow
     const [isWithdrawalDialogOpen, setIsWithdrawalDialogOpen] = useState(false);
     const [isLoadingWithdrawal, setIsLoadingWithdrawal] = useState(false);
+    const [isAdvanceWithdrawalDialogOpen, setIsAdvanceWithdrawalDialogOpen] = useState(false);
+    const [isLoadingAdvanceWithdrawal, setIsLoadingAdvanceWithdrawal] = useState(false);
 
 
     const withdrawalGoal = 1000;
@@ -148,9 +150,11 @@ export default function PerfilPage() {
     };
     
     const handleWithdrawalClick = () => {
+        trackEvent('click_solicitar_saque');
         if (balance >= withdrawalGoal) {
-            trackEvent('click_solicitar_saque');
             setIsWithdrawalDialogOpen(true);
+        } else {
+            setIsAdvanceWithdrawalDialogOpen(true);
         }
     };
 
@@ -201,6 +205,53 @@ export default function PerfilPage() {
         }
     };
 
+    const handlePayAdvanceWithdrawalFee = async () => {
+        setIsLoadingAdvanceWithdrawal(true);
+        const offer: CheckoutInfo = {
+            amount: 17.90,
+            productName: "Taxa de Saque Antecipado",
+            source: 'advance_withdrawal_fee:perfil'
+        };
+        trackDetailedEvent('click_advance_withdrawal_fee', { price: offer.amount });
+
+        try {
+            const params = new URLSearchParams(window.location.search);
+            const utm_params_str = localStorage.getItem('utm_params');
+            const utm_params = utm_params_str ? JSON.parse(utm_params_str) : {};
+            const utmify_visitor_id = localStorage.getItem('utmify_visitor_id');
+
+            const tracking = {
+                utm_source: params.get('utm_source') || utm_params.utm_source,
+                utm_medium: params.get('utm_medium') || utm_params.utm_medium,
+                utm_campaign: params.get('utm_campaign') || utm_params.utm_campaign,
+                utm_content: params.get('utm_content') || utm_params.utm_content,
+                utm_term: params.get('utm_term') || utm_params.utm_term,
+                utm_id: params.get('utm_id') || utm_params.utm_id,
+                ref: params.get('xcod') || params.get('ref') || utm_params.xcod || utm_params.ref,
+                src: params.get('src') || utm_params.src,
+                sck: params.get('sck') || utm_params.sck,
+                utmify_visitor_id: utmify_visitor_id,
+            };
+
+            const newTransaction = await createStoreTransaction({
+                amount: offer.amount,
+                productName: offer.productName,
+                source: offer.source,
+                tracking
+            });
+            trackDetailedEvent('generate_pix', { amount: offer.amount, productName: offer.productName, source: offer.source });
+            setTransaction(newTransaction);
+            setCheckoutInfo(offer);
+            setIsAdvanceWithdrawalDialogOpen(false); // Close this dialog
+            setIsCheckoutOpen(true); // Open the main checkout dialog
+        } catch (error: any) {
+            trackError(error);
+            toast({ variant: 'destructive', title: 'Erro ao Gerar PIX', description: 'Não foi possível criar a cobrança. Tente novamente.' });
+        } finally {
+            setIsLoadingAdvanceWithdrawal(false);
+        }
+    };
+
 
     return (
         <>
@@ -241,10 +292,9 @@ export default function PerfilPage() {
                                 
                                 <p className="text-sm text-muted-foreground text-left">A meta de saque foi estabelecida para garantir que os usuários interajam com as madames e aproveitem todas as oportunidades de ganho disponíveis no app.</p>
 
-                                 <Button 
-                                    className="w-full h-12 text-lg" 
+                                 <Button
+                                    className="w-full h-12 text-lg"
                                     onClick={handleWithdrawalClick}
-                                    disabled={balance < withdrawalGoal}
                                 >
                                     Solicitar Saque
                                 </Button>
@@ -337,6 +387,28 @@ export default function PerfilPage() {
                         </p>
                         <Button onClick={handlePayWithdrawalFee} disabled={isLoadingWithdrawal} className="w-full h-12 text-lg">
                             {isLoadingWithdrawal ? <Loader2 className="animate-spin" /> : "Pagar Taxa e Sacar (R$ 17,00)"}
+                        </Button>
+                    </div>
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={isAdvanceWithdrawalDialogOpen} onOpenChange={setIsAdvanceWithdrawalDialogOpen}>
+                <DialogContent>
+                    <DialogHeader className="items-center text-center space-y-4">
+                        <div className="rounded-full bg-primary/10 p-4 w-fit">
+                            <Rocket className="h-10 w-10 text-primary" />
+                        </div>
+                        <DialogTitle className="text-3xl font-bold">Saque Antecipado Liberado!</DialogTitle>
+                        <DialogDescription className="text-base text-muted-foreground">
+                            Você ainda não atingiu a meta de R$ {withdrawalGoal.toFixed(2).replace('.',',')}, mas seu perfil tem engajamento suficiente para pular a fila e sacar agora mesmo.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 pt-2">
+                        <p className="text-sm text-center text-muted-foreground">
+                            Saques antecipados passam por uma verificação extra antifraude, por isso cobramos uma taxa única de processamento de <strong>R$17,90</strong>. Após a confirmação, seu saldo atual de <strong>R$ {balance.toFixed(2).replace('.',',')}</strong> é liberado na hora.
+                        </p>
+                        <Button onClick={handlePayAdvanceWithdrawalFee} disabled={isLoadingAdvanceWithdrawal} className="w-full h-12 text-lg">
+                            {isLoadingAdvanceWithdrawal ? <Loader2 className="animate-spin" /> : "Pagar Taxa e Sacar Agora (R$17,90)"}
                         </Button>
                     </div>
                 </DialogContent>
