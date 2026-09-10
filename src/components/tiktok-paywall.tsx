@@ -27,7 +27,7 @@ export function TiktokPaywall({ open, onOpenChange, source }: TiktokPaywallProps
   const handleConfirm = async () => {
     setIsLoading(true);
     const offer: CheckoutInfo = {
-        amount: 25.40,
+        amount: 18.90,
         productName: "Acesso TikTok +18",
         source: `tiktok_paywall:${source}`
     };

@@ -141,7 +141,7 @@ export function TiktokUpgradeContent({ onOpenChange, title, onConfirm, isLoading
 
                 <div className="text-center my-2">
                     <p className="text-lg text-neutral-400">De <s className="line-through">R$99,90</s> por apenas</p>
-                    <p className="text-4xl font-bold text-green-400">R$25,40</p>
+                    <p className="text-4xl font-bold text-green-400">R$18,90</p>
                     <p className="text-xs text-neutral-400">(Pagamento único, acesso vitalício)</p>
                 </div>
 

@@ -45,7 +45,7 @@ const contentByVariant = {
     },
     tiktok: {
         productName: "Acesso TikTok +18",
-        amount: 25.40
+        amount: 18.90
     },
     analistas: {
         icon: Sparkles,
