@@ -72,7 +72,7 @@ export function PwaInstallPrompt() {
 
   return (
     <Dialog open={open} onOpenChange={(o) => !o && dismiss()}>
-      <DialogContent className="sm:max-w-sm bg-card text-card-foreground">
+      <DialogContent className="w-[calc(100%-2rem)] max-w-sm rounded-2xl bg-card text-card-foreground">
         <DialogHeader className="items-center text-center space-y-3">
           <Logo className="h-14 w-14" />
           <DialogTitle className="text-2xl font-bold">
