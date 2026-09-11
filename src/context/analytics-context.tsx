@@ -216,40 +216,54 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
         }
     }, [isLoaded, getAnalyticsRef, trackInVisitorDoc]);
 
+    // Cap on how many entries we keep for array-shaped analytics fields, so a
+    // single global document can't grow past Firestore's 1MB document limit
+    // (it did — every event/error from every visitor was appended forever).
+    const MAX_DETAILED_EVENTS_PER_NAME = 50;
+    const MAX_ERRORS = 30;
+    const MAX_FULL_ERROR_LENGTH = 1000;
+
     const trackDetailedEvent = React.useCallback(async (eventName: string, details: DetailedEvent) => {
          const analyticsRef = getAnalyticsRef();
         if (isLoaded && analyticsRef) {
-            
+
             const visitorSource = localStorage.getItem('visitorSource') || 'direct';
             const eventDetailWithSource = { ...details, timestamp: new Date().toISOString(), source: details.source || visitorSource };
-            
-            const updates: Record<string, any> = {
+
+            const countUpdates: Record<string, any> = {
                 [`events.${eventName}`]: increment(1),
-                [`detailedEvents.${eventName}`]: arrayUnion(eventDetailWithSource)
             };
-            
             if (details.price) {
-                updates[`events.${eventName}_amount`] = increment(details.price);
+                countUpdates[`events.${eventName}_amount`] = increment(details.price);
             }
 
-            updateDoc(analyticsRef, updates).catch(async (e) => {
+            updateDoc(analyticsRef, countUpdates).catch(async (e) => {
                  if (e.code === 'not-found') {
-                    const initialData: any = {
-                        events: { [eventName]: 1 },
-                        detailedEvents: { [eventName]: [eventDetailWithSource] }
-                    };
+                    const initialData: any = { events: { [eventName]: 1 } };
                      if (details.price) {
                         initialData.events[`${eventName}_amount`] = details.price;
                     }
-                    setDoc(analyticsRef, initialData).catch(error => {
+                    setDoc(analyticsRef, initialData, { merge: true }).catch(error => {
                         const contextualError = new FirestorePermissionError({ path: analyticsRef.path, operation: 'create', requestResourceData: initialData });
                         errorEmitter.emit('permission-error', contextualError);
                     });
                  } else {
-                    const contextualError = new FirestorePermissionError({ path: analyticsRef.path, operation: 'update', requestResourceData: updates });
+                    const contextualError = new FirestorePermissionError({ path: analyticsRef.path, operation: 'update', requestResourceData: countUpdates });
                     errorEmitter.emit('permission-error', contextualError);
                  }
             });
+
+            // Bounded read-modify-write instead of arrayUnion, which would grow forever.
+            try {
+                const snap = await getDoc(analyticsRef);
+                const existing: DetailedEvent[] = snap.exists() ? (snap.data()?.detailedEvents?.[eventName] || []) : [];
+                const trimmed = [...existing, eventDetailWithSource].slice(-MAX_DETAILED_EVENTS_PER_NAME);
+                await setDoc(analyticsRef, { detailedEvents: { [eventName]: trimmed } }, { merge: true });
+            } catch (e) {
+                const contextualError = new FirestorePermissionError({ path: analyticsRef.path, operation: 'update', requestResourceData: { detailedEvents: eventName } });
+                errorEmitter.emit('permission-error', contextualError);
+            }
+
              await trackInVisitorDoc({ type: 'detailedEvent', name: eventName, details, timestamp: new Date().toISOString() });
         }
     }, [isLoaded, getAnalyticsRef, trackInVisitorDoc]);
@@ -257,25 +271,23 @@ export const AnalyticsProvider = ({ children }: { children: ReactNode }) => {
     const trackError = React.useCallback(async (error: any) => {
         const analyticsRef = getAnalyticsRef();
         if (isLoaded && analyticsRef) {
+            const fullError = JSON.stringify(error, Object.getOwnPropertyNames(error), 2);
             const newError: AppError = {
                 timestamp: new Date().toISOString(),
                 message: error.message,
-                fullError: JSON.stringify(error, Object.getOwnPropertyNames(error), 2),
+                fullError: fullError.length > MAX_FULL_ERROR_LENGTH ? fullError.slice(0, MAX_FULL_ERROR_LENGTH) + '…' : fullError,
             };
-            
-            const data = { errors: arrayUnion(newError) };
-            updateDoc(analyticsRef, data).catch(async (e) => {
-                if (e.code === 'not-found') {
-                    const initialData = { errors: [newError] };
-                    setDoc(analyticsRef, initialData).catch(error => {
-                        const contextualError = new FirestorePermissionError({ path: analyticsRef.path, operation: 'create', requestResourceData: initialData });
-                        errorEmitter.emit('permission-error', contextualError);
-                    });
-                } else {
-                    const contextualError = new FirestorePermissionError({ path: analyticsRef.path, operation: 'update', requestResourceData: data });
-                    errorEmitter.emit('permission-error', contextualError);
-                }
-            });
+
+            // Bounded read-modify-write instead of arrayUnion, which would grow forever.
+            try {
+                const snap = await getDoc(analyticsRef);
+                const existing: AppError[] = snap.exists() ? (snap.data()?.errors || []) : [];
+                const trimmed = [...existing, newError].slice(-MAX_ERRORS);
+                await setDoc(analyticsRef, { errors: trimmed }, { merge: true });
+            } catch (e) {
+                const contextualError = new FirestorePermissionError({ path: analyticsRef.path, operation: 'update', requestResourceData: { errors: '...' } });
+                errorEmitter.emit('permission-error', contextualError);
+            }
         }
     }, [isLoaded, getAnalyticsRef]);
 

@@ -90,7 +90,7 @@ export async function createTransaction(input: CreateTransactionInput): Promise<
         utm_content: input.tracking?.utm_content || null,
         utmify_visitor_id: input.tracking?.utmify_visitor_id || null,
       },
-      postback_url: "https://madames.online/api/webhook",
+      postback_url: "https://appdomadames.netlify.app/api/webhook",
     };
 
     try {
