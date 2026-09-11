@@ -3,36 +3,9 @@
 
 import { ai } from '@/ai/genkit';
 import { z } from 'zod';
-import { initializeApp, getApps, FirebaseOptions, App, cert } from 'firebase-admin/app';
-import { getFirestore, FieldValue } from 'firebase-admin/firestore';
-import { firebaseConfig as clientFirebaseConfig } from '@/firebase/config';
-
-// --- Function to initialize Firebase Admin SDK on-demand ---
-let app: App;
-function getFirebaseAdmin(clientEmail?: string, privateKey?: string) {
-    if (getApps().length) {
-        app = getApps()[0];
-        return { db: getFirestore(app) };
-    }
-
-    if (!privateKey || !clientEmail) {
-        throw new Error('Firebase Admin credentials missing.');
-    }
-
-    const serviceAccount = {
-        projectId: clientFirebaseConfig.projectId,
-        clientEmail: clientEmail,
-        privateKey: privateKey.replace(/\\n/g, '\n'),
-    };
-
-    const firebaseConfig: FirebaseOptions = {
-        credential: cert(serviceAccount),
-        databaseURL: `https://${clientFirebaseConfig.projectId}.firebaseio.com`,
-    };
-    app = initializeApp(firebaseConfig);
-    
-    return { db: getFirestore(app) };
-}
+import { FieldValue } from 'firebase-admin/firestore';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { reportOrderToUtmify, mapFrendzStatusToUtmify } from '@/lib/utmify';
 
 const WebhookInputSchema = z.object({
     body: z.any(),
@@ -46,9 +19,9 @@ export const processWebhook = ai.defineFlow(
         inputSchema: WebhookInputSchema,
         outputSchema: z.void(),
     },
-    async ({ body, firebaseClientEmail, firebasePrivateKey }) => {
+    async ({ body }) => {
         try {
-            const { db } = getFirebaseAdmin(firebaseClientEmail, firebasePrivateKey);
+            const { db } = getFirebaseAdmin();
 
             const webhookLogRef = db.collection('webhook_logs').doc();
             await webhookLogRef.set({
@@ -76,7 +49,7 @@ export const processWebhook = ai.defineFlow(
                 };
 
                 await analyticsRef.set(firestoreUpdate, { merge: true });
-                
+
                 const paidTransactionRef = db.collection('paidTransactions').doc(String(externalId));
                 await paidTransactionRef.set({
                     paidAt: FieldValue.serverTimestamp(),
@@ -84,9 +57,38 @@ export const processWebhook = ai.defineFlow(
                     visitorId: null,
                 });
             }
+
+            // Report the status change to Utmify, using the tracking/customer
+            // context saved when the transaction was created (Frendz's webhook
+            // payload itself carries no UTM data).
+            const utmifyStatus = mapFrendzStatusToUtmify(status);
+            if (externalId && utmifyStatus) {
+                try {
+                    const pendingRef = db.collection('pendingTransactions').doc(String(externalId));
+                    const pendingSnap = await pendingRef.get();
+                    if (pendingSnap.exists) {
+                        const pending = pendingSnap.data()!;
+                        await reportOrderToUtmify({
+                            orderId: String(externalId),
+                            status: utmifyStatus,
+                            createdAt: pending.createdAt?.toDate ? pending.createdAt.toDate() : new Date(),
+                            approvedDate: status === 'paid' ? new Date() : null,
+                            customer: pending.customer || { name: 'Cliente', email: 'cliente@mail.com' },
+                            productName: pending.productName || 'Produto',
+                            amountInCents: pending.amount || Math.round(amountInBRL * 100),
+                            ip: pending.ip || null,
+                            tracking: pending.tracking || null,
+                        });
+                    } else {
+                        console.warn('Nenhuma pendingTransaction encontrada para reportar à Utmify:', externalId);
+                    }
+                } catch (utmifyError: any) {
+                    console.error('Falha ao reportar status para a Utmify:', utmifyError.message);
+                }
+            }
         } catch (error: any) {
             console.error('Erro no fluxo processWebhook:', error);
-            throw error; 
+            throw error;
         }
     }
 );

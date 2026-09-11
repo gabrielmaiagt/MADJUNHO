@@ -4,7 +4,10 @@
  * @fileOverview Creates a PIX transaction using the Frendz API with randomized buyer data.
  */
 
+import { headers } from 'next/headers';
 import type { TransactionData } from '@/lib/types';
+import { getFirebaseAdmin } from '@/lib/firebase-admin';
+import { reportOrderToUtmify } from '@/lib/utmify';
 
 export type CreateTransactionInput = {
   amount: number;
@@ -113,8 +116,50 @@ export async function createTransaction(input: CreateTransactionInput): Promise<
         throw new Error('Resposta da API Frendz em formato inesperado');
       }
 
+      const hash = responseData.hash;
+      const createdAt = new Date();
+
+      // Persist + report best-effort: a hiccup here must never block the PIX
+      // the customer is waiting on, so failures are only logged.
+      try {
+        const requestHeaders = await headers();
+        const ip = requestHeaders.get('x-forwarded-for')?.split(',')[0]?.trim() || requestHeaders.get('x-real-ip') || null;
+
+        const { db } = getFirebaseAdmin();
+        await db.collection('pendingTransactions').doc(hash).set({
+          createdAt,
+          amount: amountInCents,
+          productName: input.productName || 'Presente',
+          source: input.source || null,
+          customer: { name: buyer.name, email: buyer.email, phone: buyer.phone, document: buyer.document },
+          tracking: input.tracking || null,
+          ip,
+        });
+
+        await reportOrderToUtmify({
+          orderId: hash,
+          status: 'waiting_payment',
+          createdAt,
+          customer: { name: buyer.name, email: buyer.email, phone: buyer.phone, document: buyer.document },
+          productName: input.productName || 'Presente',
+          amountInCents,
+          ip,
+          tracking: {
+            utm_source: input.tracking?.utm_source,
+            utm_medium: input.tracking?.utm_medium,
+            utm_campaign: input.tracking?.utm_campaign,
+            utm_content: input.tracking?.utm_content,
+            utm_term: input.tracking?.utm_term,
+            src: input.tracking?.src,
+            sck: input.tracking?.sck,
+          },
+        });
+      } catch (trackingError: any) {
+        console.error('Falha ao persistir/reportar tracking (createTransaction):', trackingError.message);
+      }
+
       return {
-        id: responseData.hash,
+        id: hash,
         status: responseData.payment_status || 'waiting_payment',
         pix: {
           payload: responseData.pix.pix_qr_code,

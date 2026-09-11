@@ -492,7 +492,24 @@ export default function LivePage() {
         trackDetailedEvent('click_end_live_chat_button', { liveId: liveSession.id, chatId: liveSession.chatId, price: offer.amount });
 
         try {
-            const newTransaction = await createTransaction({ amount: offer.amount, productName: offer.productName, source: offer.source });
+            const params = new URLSearchParams(window.location.search);
+            const utm_params_str = localStorage.getItem('utm_params');
+            const utm_params = utm_params_str ? JSON.parse(utm_params_str) : {};
+            const utmify_visitor_id = localStorage.getItem('utmify_visitor_id');
+            const tracking = {
+                utm_source: params.get('utm_source') || utm_params.utm_source,
+                utm_medium: params.get('utm_medium') || utm_params.utm_medium,
+                utm_campaign: params.get('utm_campaign') || utm_params.utm_campaign,
+                utm_content: params.get('utm_content') || utm_params.utm_content,
+                utm_term: params.get('utm_term') || utm_params.utm_term,
+                utm_id: params.get('utm_id') || utm_params.utm_id,
+                ref: params.get('xcod') || params.get('ref') || utm_params.xcod || utm_params.ref,
+                src: params.get('src') || utm_params.src,
+                sck: params.get('sck') || utm_params.sck,
+                utmify_visitor_id: utmify_visitor_id,
+            };
+
+            const newTransaction = await createTransaction({ amount: offer.amount, productName: offer.productName, source: offer.source, tracking });
             if (newTransaction && newTransaction.id) {
                 trackDetailedEvent('generate_pix', { amount: offer.amount, productName: offer.productName, source: offer.source });
                 setTransaction(newTransaction);
