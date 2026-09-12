@@ -5,7 +5,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'zod';
 import { FieldValue } from 'firebase-admin/firestore';
 import { getFirebaseAdmin } from '@/lib/firebase-admin';
-import { reportOrderToUtmify, mapFrendzStatusToUtmify } from '@/lib/utmify';
+import { forwardFrendzWebhookToUtmify } from '@/lib/utmify';
 
 const WebhookInputSchema = z.object({
     body: z.any(),
@@ -58,34 +58,9 @@ export const processWebhook = ai.defineFlow(
                 });
             }
 
-            // Report the status change to Utmify, using the tracking/customer
-            // context saved when the transaction was created (Frendz's webhook
-            // payload itself carries no UTM data).
-            const utmifyStatus = mapFrendzStatusToUtmify(status);
-            if (externalId && utmifyStatus) {
-                try {
-                    const pendingRef = db.collection('pendingTransactions').doc(String(externalId));
-                    const pendingSnap = await pendingRef.get();
-                    if (pendingSnap.exists) {
-                        const pending = pendingSnap.data()!;
-                        await reportOrderToUtmify({
-                            orderId: String(externalId),
-                            status: utmifyStatus,
-                            createdAt: pending.createdAt?.toDate ? pending.createdAt.toDate() : new Date(),
-                            approvedDate: status === 'paid' ? new Date() : null,
-                            customer: pending.customer || { name: 'Cliente', email: 'cliente@mail.com' },
-                            productName: pending.productName || 'Produto',
-                            amountInCents: pending.amount || Math.round(amountInBRL * 100),
-                            ip: pending.ip || null,
-                            tracking: pending.tracking || null,
-                        });
-                    } else {
-                        console.warn('Nenhuma pendingTransaction encontrada para reportar à Utmify:', externalId);
-                    }
-                } catch (utmifyError: any) {
-                    console.error('Falha ao reportar status para a Utmify:', utmifyError.message);
-                }
-            }
+            // Relay the exact same payload to Utmify's Frendz-specific webhook
+            // endpoint — it already knows how to parse this shape, UTMs included.
+            await forwardFrendzWebhookToUtmify(body);
         } catch (error: any) {
             console.error('Erro no fluxo processWebhook:', error);
             throw error;
